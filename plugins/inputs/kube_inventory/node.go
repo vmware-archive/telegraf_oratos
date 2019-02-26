@@ -45,7 +45,7 @@ func (ki *KubernetesInventory) gatherNode(n v1.Node, acc telegraf.Accumulator) e
 
 	for resourceName, val := range n.Status.Allocatable {
 		if resourceName == "cpu" || resourceName == "memory" || resourceName == "pods" {
-			log.Printf("Node %s capacity value for %s: '%+v'", n.Metadata.GetName(), resourceName, val)
+			log.Printf("Node %s allocatable value for %s: '%+v'", n.Metadata.GetName(), resourceName, val)
 		}
 		switch resourceName {
 		case "cpu":
