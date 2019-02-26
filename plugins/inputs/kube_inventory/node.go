@@ -2,6 +2,7 @@ package kube_inventory
 
 import (
 	"context"
+	"log"
 
 	"github.com/ericchiang/k8s/apis/core/v1"
 
@@ -29,6 +30,9 @@ func (ki *KubernetesInventory) gatherNode(n v1.Node, acc telegraf.Accumulator) e
 	}
 
 	for resourceName, val := range n.Status.Capacity {
+		if resourceName == "cpu" || resourceName == "memory" || resourceName == "pods" {
+			log.Printf("Node %s capacity value for %s: '%+v'", n.Metadata.GetName(), resourceName, val)
+		}
 		switch resourceName {
 		case "cpu":
 			fields["capacity_cpu_cores"] = atoi(val.GetString_())
@@ -40,6 +44,9 @@ func (ki *KubernetesInventory) gatherNode(n v1.Node, acc telegraf.Accumulator) e
 	}
 
 	for resourceName, val := range n.Status.Allocatable {
+		if resourceName == "cpu" || resourceName == "memory" || resourceName == "pods" {
+			log.Printf("Node %s capacity value for %s: '%+v'", n.Metadata.GetName(), resourceName, val)
+		}
 		switch resourceName {
 		case "cpu":
 			fields["allocatable_cpu_cores"] = atoi(val.GetString_())
