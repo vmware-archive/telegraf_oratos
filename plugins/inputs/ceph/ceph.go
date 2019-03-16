@@ -301,10 +301,12 @@ func (c *Ceph) exec(command string) (string, error) {
 	cmd := exec.Command(c.CephBinary, cmdArgs...)
 
 	var out bytes.Buffer
+	var errOut bytes.Buffer
 	cmd.Stdout = &out
+	cmd.Stderr = &errOut
 	err := cmd.Run()
 	if err != nil {
-		return "", fmt.Errorf("error running ceph %v: %s", command, err)
+		return "", fmt.Errorf("error running ceph %v: %s: %+q", command, err, errOut.String())
 	}
 
 	output := out.String()
