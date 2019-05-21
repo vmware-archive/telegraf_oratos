@@ -1,6 +1,7 @@
 package rss
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/influxdata/telegraf"
@@ -63,21 +64,21 @@ func (m *Rss) gatherFeed(feed string, acc telegraf.Accumulator) error {
 		for _, t := range m.Filters {
 			switch t {
 			case "title":
-				fields["title"] = item.Title
+				fields["title"] = strings.Replace(item.Title, "\n", "")
 			case "description":
-				fields["description"] = item.Description
+				fields["description"] = strings.Replace(item.Description, "\n", "")
 			case "content":
-				fields["content"] = item.Content
+				fields["content"] = strings.Replace(item.Content, "\n", "")
 			case "link":
-				fields["link"] = item.Link
+				fields["link"] = strings.Replace(item.Link, "\n", "")
 			case "updated":
-				fields["updated"] = item.Updated
+				fields["updated"] = strings.Replace(item.Updated, "\n", "")
 			case "published":
-				fields["published"] = item.Published
+				fields["published"] = strings.Replace(item.Published, "\n", "")
 			case "author":
-				fields["author"] = item.Author
+				fields["author"] = strings.Replace(item.Author, "\n", "")
 			case "guid":
-				fields["guid"] = item.GUID
+				fields["guid"] = strings.Replace(item.GUID, "\n", "")
 			}
 		}
 
