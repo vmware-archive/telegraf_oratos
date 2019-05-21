@@ -3,6 +3,7 @@ package rss
 import (
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/influxdata/telegraf"
 	"github.com/influxdata/telegraf/plugins/inputs"
@@ -62,6 +63,7 @@ func (m *Rss) gatherFeed(feed string, acc telegraf.Accumulator) error {
 			tags[cat] = "true"
 		}
 
+		now := time.Now()
 		fields := map[string]interface{}{}
 		for _, t := range m.Filters {
 			switch t {
@@ -76,6 +78,9 @@ func (m *Rss) gatherFeed(feed string, acc telegraf.Accumulator) error {
 			case "updated":
 				fields["updated"] = strings.Replace(item.Updated, "\n", "", -1)
 			case "published":
+				if item.PublishedParsed != nil {
+					now = *item.PublishedParsed
+				}
 				fields["published"] = strings.Replace(item.Published, "\n", "", -1)
 			case "author":
 				if item.Author != nil {
@@ -86,7 +91,7 @@ func (m *Rss) gatherFeed(feed string, acc telegraf.Accumulator) error {
 			}
 		}
 
-		acc.AddFields("rss", fields, tags)
+		acc.AddFields("rss", fields, tags, now)
 	}
 	return nil
 }
