@@ -64,21 +64,23 @@ func (m *Rss) gatherFeed(feed string, acc telegraf.Accumulator) error {
 		for _, t := range m.Filters {
 			switch t {
 			case "title":
-				fields["title"] = strings.Replace(item.Title, "\n", "")
+				fields["title"] = strings.ReplaceAll(item.Title, "\n", "")
 			case "description":
-				fields["description"] = strings.Replace(item.Description, "\n", "")
+				fields["description"] = strings.ReplaceAll(item.Description, "\n", "")
 			case "content":
-				fields["content"] = strings.Replace(item.Content, "\n", "")
+				fields["content"] = strings.ReplaceAll(item.Content, "\n", "")
 			case "link":
-				fields["link"] = strings.Replace(item.Link, "\n", "")
+				fields["link"] = strings.ReplaceAll(item.Link, "\n", "")
 			case "updated":
-				fields["updated"] = strings.Replace(item.Updated, "\n", "")
+				fields["updated"] = strings.ReplaceAll(item.Updated, "\n", "")
 			case "published":
-				fields["published"] = strings.Replace(item.Published, "\n", "")
+				fields["published"] = strings.ReplaceAll(item.Published, "\n", "")
 			case "author":
-				fields["author"] = strings.Replace(item.Author, "\n", "")
+				if item.Author != nil {
+					fields["author"] = item.Author.Name
+				}
 			case "guid":
-				fields["guid"] = strings.Replace(item.GUID, "\n", "")
+				fields["guid"] = strings.ReplaceAll(item.GUID, "\n", "")
 			}
 		}
 
