@@ -52,7 +52,9 @@ func (m *Rss) gatherFeed(feed string, acc telegraf.Accumulator) error {
 	}
 
 	for _, item := range f.Items {
-
+		if !m.ShouldReport(item.Title) {
+			continue
+		}
 		tags := map[string]string{
 			"feed": feed,
 		}
@@ -89,7 +91,7 @@ func (m *Rss) gatherFeed(feed string, acc telegraf.Accumulator) error {
 	return nil
 }
 
-func (m Rss) Report(str string) bool {
+func (m Rss) ShouldReport(str string) bool {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
