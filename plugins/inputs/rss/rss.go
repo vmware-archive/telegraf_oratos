@@ -64,17 +64,17 @@ func (m *Rss) gatherFeed(feed string, acc telegraf.Accumulator) error {
 		for _, t := range m.Filters {
 			switch t {
 			case "title":
-				fields["title"] = strings.ReplaceAll(item.Title, "\n", "")
+				fields["title"] = strings.Replace(item.Title, "\n", "", -1)
 			case "description":
-				fields["description"] = strings.ReplaceAll(item.Description, "\n", "")
+				fields["description"] = strings.Replace(item.Description, "\n", "", -1)
 			case "content":
-				fields["content"] = strings.ReplaceAll(item.Content, "\n", "")
+				fields["content"] = strings.Replace(item.Content, "\n", "", -1)
 			case "link":
-				fields["link"] = strings.ReplaceAll(item.Link, "\n", "")
+				fields["link"] = strings.Replace(item.Link, "\n", "", -1)
 			case "updated":
-				fields["updated"] = strings.ReplaceAll(item.Updated, "\n", "")
+				fields["updated"] = strings.Replace(item.Updated, "\n", "", -1)
 			case "published":
-				fields["published"] = strings.ReplaceAll(item.Published, "\n", "")
+				fields["published"] = strings.Replace(item.Published, "\n", "", -1)
 			case "author":
 				if item.Author != nil {
 					fields["author"] = item.Author.Name
@@ -87,7 +87,7 @@ func (m *Rss) gatherFeed(feed string, acc telegraf.Accumulator) error {
 		acc.AddFields("rss", fields, tags)
 
 	}
-	return nil
+	return nils
 }
 
 func (m Rss) Report(str string) bool {
@@ -96,8 +96,8 @@ func (m Rss) Report(str string) bool {
 
 	_, ok := m.reported[str]
 	m.reported[str] = struct{}{}
-	return !ok
 
+	return !ok
 }
 
 func init() {
