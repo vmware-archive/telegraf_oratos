@@ -2,7 +2,6 @@ package rss
 
 import (
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/influxdata/telegraf"
@@ -15,8 +14,7 @@ type Rss struct {
 	Feeds   []string
 	Filters []string
 
-	reported map[string]struct{}
-	mu       sync.Mutex
+	lastPublished time.Time
 }
 
 // Description the rss feed plugin
@@ -51,10 +49,16 @@ func (m *Rss) gatherFeed(feed string, acc telegraf.Accumulator) error {
 	if err != nil {
 		panic(err)
 	}
-
+	lp := m.lastPublished
+	nlp := m.lastPublished
 	for _, item := range f.Items {
-		if !m.ShouldReport(item.Title) {
+		if item.PublishedParsed != nil && lp.After(*item.PublishedParsed) {
+			published := *item.PublishedParsed
+			if published.After(nlp) {
+				nlp = published
+			}
 			continue
+
 		}
 		tags := map[string]string{
 			"feed": feed,
@@ -93,23 +97,12 @@ func (m *Rss) gatherFeed(feed string, acc telegraf.Accumulator) error {
 
 		acc.AddFields("rss", fields, tags, now)
 	}
+	m.lastPublished = nlp
 	return nil
-}
-
-func (m Rss) ShouldReport(str string) bool {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-
-	_, ok := m.reported[str]
-	m.reported[str] = struct{}{}
-
-	return !ok
 }
 
 func init() {
 	inputs.Add("rss", func() telegraf.Input {
-		return &Rss{
-			reported: map[string]struct{}{},
-		}
+		return &Rss{}
 	})
 }
