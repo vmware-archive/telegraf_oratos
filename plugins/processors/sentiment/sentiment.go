@@ -15,6 +15,7 @@ var SampleConfig = `
 
 type Sentiment struct {
 	AnalyzeFields []string `toml:"analyze_fields"`
+	Model         sentiment.Models
 }
 
 func (s *Sentiment) SampleConfig() string {
@@ -26,10 +27,6 @@ func (s *Sentiment) Description() string {
 }
 
 func (s *Sentiment) Apply(metrics ...telegraf.Metric) []telegraf.Metric {
-	model, err := sentiment.Restore()
-	if err != nil {
-		panic(fmt.Sprintf("Could not restore model!\n\t%v\n", err))
-	}
 
 	for _, metric := range metrics {
 		if len(metric.Fields()) == 0 {
@@ -40,7 +37,7 @@ func (s *Sentiment) Apply(metrics ...telegraf.Metric) []telegraf.Metric {
 			if contains(s.AnalyzeFields, field.Key) {
 				switch value := field.Value.(type) {
 				case string:
-					analysis := model.SentimentAnalysis(value, sentiment.English)
+					analysis := s.Model.SentimentAnalysis(value, sentiment.English)
 					metric.AddField("sentiment_"+field.Key, int(analysis.Score))
 				}
 
@@ -52,8 +49,13 @@ func (s *Sentiment) Apply(metrics ...telegraf.Metric) []telegraf.Metric {
 }
 
 func init() {
+	model, err := sentiment.Restore()
+	if err != nil {
+		panic(fmt.Sprintf("Could not restore model!\n\t%v\n", err))
+	}
+
 	processors.Add("sentiment", func() telegraf.Processor {
-		return &Sentiment{AnalyzeFields: []string{}}
+		return &Sentiment{AnalyzeFields: []string{}, Model: model}
 	})
 }
 
