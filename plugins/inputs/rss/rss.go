@@ -85,7 +85,7 @@ func (m *Rss) gatherFeed(feed string, acc telegraf.Accumulator) error {
 		acc.AddFields("rss", fields, tags)
 
 	}
-
+	return nil
 }
 
 func (m Rss) Report(str string) bool {
