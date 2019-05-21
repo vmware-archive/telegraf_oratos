@@ -80,14 +80,13 @@ func (m *Rss) gatherFeed(feed string, acc telegraf.Accumulator) error {
 					fields["author"] = item.Author.Name
 				}
 			case "guid":
-				fields["guid"] = strings.ReplaceAll(item.GUID, "\n", "")
+				fields["guid"] = strings.Replace(item.GUID, "\n", "", -1)
 			}
 		}
 
 		acc.AddFields("rss", fields, tags)
-
 	}
-	return nils
+	return nil
 }
 
 func (m Rss) Report(str string) bool {
