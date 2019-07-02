@@ -274,18 +274,18 @@ func (c *httpClient) Write(ctx context.Context, metrics []telegraf.Metric) error
 func (c *httpClient) writeBatch(ctx context.Context, db string, metrics []telegraf.Metric) error {
 	url, err := makeWriteURL(c.config.URL, db, c.config.RetentionPolicy, c.config.Consistency)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed making write url: %s", err.Error())
 	}
 
 	reader := influx.NewReader(metrics, c.config.Serializer)
 	req, err := c.makeWriteRequest(url, reader)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed making write req: %s", err.Error())
 	}
 
 	resp, err := c.client.Do(req.WithContext(ctx))
 	if err != nil {
-		return err
+		return fmt.Errorf("failed doing req: %s", err.Error())
 	}
 	defer resp.Body.Close()
 
@@ -378,13 +378,13 @@ func (c *httpClient) makeWriteRequest(url string, body io.Reader) (*http.Request
 	if c.config.ContentEncoding == "gzip" {
 		body, err = internal.CompressWithGzip(body)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed gzipping: %s", err.Error())
 		}
 	}
 
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed creating new request: %s", err.Error())
 	}
 
 	req.Header.Set("Content-Type", "text/plain; charset=utf-8")
