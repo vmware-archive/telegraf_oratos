@@ -28,6 +28,33 @@
   revision = "02e53af36e6c978af692887ed449b74026d76fec"
 
 [[projects]]
+  digest = "1:6451235c351fb19c3ae76b4098c7d92eef95c293027d0ea7e89dd8cd762fe96e"
+  name = "code.cloudfoundry.org/go-loggregator"
+  packages = ["rpc/loggregator_v2"]
+  pruneopts = ""
+  revision = "b8d176783c8a6280a34f0e19e0e8f57d722773a1"
+  version = "v7.7.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:8ab9d0eaf4289680d44040c23b5b5e92f7ec8ecec890a95679e2d93d05d21576"
+  name = "code.cloudfoundry.org/log-cache"
+  packages = [
+    "internal/tls",
+    "pkg/rpc/logcache_v1",
+  ]
+  pruneopts = ""
+  revision = "526a0fd20d0308de00e5a3018047219428e31653"
+
+[[projects]]
+  branch = "master"
+  digest = "1:68e76d18ba2432722d6eafdcf28bf3fcda73a918eb4a8afc1d7757bc5dc6a6c6"
+  name = "code.cloudfoundry.org/rfc5424"
+  packages = ["."]
+  pruneopts = ""
+  revision = "236a6d29298aea12f69978f33393d12465abc429"
+
+[[projects]]
   digest = "1:ca3acef20fd660d4df327accbf3ca2df9a12213d914f3113305dcd56579324b9"
   name = "collectd.org"
   packages = [
@@ -533,9 +560,11 @@
   version = "1.3.1"
 
 [[projects]]
-  digest = "1:f958a1c137db276e52f0b50efee41a1a389dcdded59a69711f3e872757dab34b"
+  digest = "1:b852d2b62be24e445fcdbad9ce3015b44c207815d631230dfce3f14e7803f5bf"
   name = "github.com/golang/protobuf"
   packages = [
+    "descriptor",
+    "jsonpb",
     "proto",
     "protoc-gen-go/descriptor",
     "ptypes",
@@ -547,8 +576,8 @@
     "ptypes/wrappers",
   ]
   pruneopts = ""
-  revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
-  version = "v1.1.0"
+  revision = "6c65a5562fc06764971b7c5d05c76c75e84bdbf7"
+  version = "v1.3.2"
 
 [[projects]]
   branch = "master"
@@ -619,6 +648,18 @@
   pruneopts = ""
   revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
   version = "v1.6.2"
+
+[[projects]]
+  digest = "1:a82fe90cbcaf5dfc8267a0b49e0ab0a67c636532c83b21326f5000817ef20d5b"
+  name = "github.com/grpc-ecosystem/grpc-gateway"
+  packages = [
+    "internal",
+    "runtime",
+    "utilities",
+  ]
+  pruneopts = ""
+  revision = "f7120437bb4f6c71f7f5076ad65a45310de2c009"
+  version = "v1.12.1"
 
 [[projects]]
   branch = "master"
@@ -1500,6 +1541,7 @@
   packages = [
     "googleapis/api/annotations",
     "googleapis/api/distribution",
+    "googleapis/api/httpbody",
     "googleapis/api/label",
     "googleapis/api/metric",
     "googleapis/api/monitoredres",
@@ -1513,16 +1555,19 @@
   revision = "fedd2861243fd1a8152376292b921b394c7bef7e"
 
 [[projects]]
-  digest = "1:5f31b45ee9da7a87f140bef3ed0a7ca34ea2a6d38eb888123b8e28170e8aa4f2"
+  digest = "1:ec89356e95f2a8983928a7872f71f0f934f97932353af4fe1a76d322db5eaf7b"
   name = "google.golang.org/grpc"
   packages = [
     ".",
+    "backoff",
     "balancer",
     "balancer/base",
     "balancer/roundrobin",
+    "binarylog/grpc_binarylog_v1",
     "codes",
     "connectivity",
     "credentials",
+    "credentials/internal",
     "credentials/oauth",
     "encoding",
     "encoding/gzip",
@@ -1530,23 +1575,30 @@
     "grpclog",
     "internal",
     "internal/backoff",
+    "internal/balancerload",
+    "internal/binarylog",
+    "internal/buffer",
     "internal/channelz",
+    "internal/envconfig",
     "internal/grpcrand",
+    "internal/grpcsync",
+    "internal/resolver/dns",
+    "internal/resolver/passthrough",
+    "internal/syscall",
+    "internal/transport",
     "keepalive",
     "metadata",
     "naming",
     "peer",
     "resolver",
-    "resolver/dns",
-    "resolver/passthrough",
+    "serviceconfig",
     "stats",
     "status",
     "tap",
-    "transport",
   ]
   pruneopts = ""
-  revision = "168a6198bcb0ef175f7dacec0b8691fc141dc9b8"
-  version = "v1.13.0"
+  revision = "1a3960e4bd028ac0cec0a2afd27d7d8e67c11514"
+  version = "v1.25.1"
 
 [[projects]]
   digest = "1:3cad99e0d1f94b8c162787c12e59d0a0b9df1ef75590eb145cdd625479091efe"
@@ -1716,6 +1768,9 @@
   input-imports = [
     "cloud.google.com/go/monitoring/apiv3",
     "cloud.google.com/go/pubsub",
+    "code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2",
+    "code.cloudfoundry.org/log-cache/internal/tls",
+    "code.cloudfoundry.org/log-cache/pkg/rpc/logcache_v1",
     "collectd.org/api",
     "collectd.org/network",
     "github.com/Azure/azure-storage-queue-go/azqueue",
