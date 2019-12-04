@@ -7,17 +7,19 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
+	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
+	"code.cloudfoundry.org/log-cache/pkg/rpc/logcache_v1"
+
 	"github.com/influxdata/telegraf"
 	"github.com/influxdata/telegraf/internal/tls"
 	"github.com/influxdata/telegraf/plugins/outputs"
-
-	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
-	"code.cloudfoundry.org/log-cache/pkg/rpc/logcache_v1"
 )
 
-const (
-	defaultURL = ":8080"
-)
+func init() {
+	outputs.Add("cloudfoundry", func() telegraf.Output {
+		return &CloudFoundry{}
+	})
+}
 
 var sampleConfig = `
   ## Log Cache address
@@ -104,12 +106,6 @@ func (c *CloudFoundry) Write(metrics []telegraf.Metric) error {
 	})
 
 	return err
-}
-
-func init() {
-	outputs.Add("cloudfoundry", func() telegraf.Output {
-		return &CloudFoundry{}
-	})
 }
 
 func (c *CloudFoundry) getGaugeEnvelope(m telegraf.Metric) *loggregator_v2.Envelope {
