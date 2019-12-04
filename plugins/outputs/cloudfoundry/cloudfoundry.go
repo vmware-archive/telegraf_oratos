@@ -67,7 +67,7 @@ func (c *CloudFoundry) Connect() error {
 	}
 	tc := credentials.NewTLS(cfg)
 
-	conn, err := grpc.Dial(
+	c.connection, err = grpc.Dial(
 		c.Address,
 		grpc.WithTransportCredentials(tc),
 	)
@@ -75,7 +75,7 @@ func (c *CloudFoundry) Connect() error {
 		return fmt.Errorf("Unable to establish gRPC connection to log-cache: %v\n", err)
 	}
 
-	c.LogCacheClient = logcache_v1.NewIngressClient(conn)
+	c.LogCacheClient = logcache_v1.NewIngressClient(c.connection)
 	return nil
 }
 
