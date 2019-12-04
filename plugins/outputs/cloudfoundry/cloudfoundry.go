@@ -2,15 +2,14 @@ package cloudfoundry
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
 	"fmt"
-	"io/ioutil"
 
-	"github.com/influxdata/telegraf"
-	"github.com/influxdata/telegraf/plugins/outputs"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+
+	"github.com/influxdata/telegraf"
+	"github.com/influxdata/telegraf/internal/tls"
+	"github.com/influxdata/telegraf/plugins/outputs"
 
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 	"code.cloudfoundry.org/log-cache/pkg/rpc/logcache_v1"
@@ -24,13 +23,12 @@ var sampleConfig = `
   ## Log Cache address
   address = ":8080"
 
-  ## TLS configuration for Log Cache
-  ## CA path
-  ca_path = "/ca.pem" # required
-  ## Certificate path
-  cert_path = "/cert.pem" # required
-  ## Key path
-  key_path = "/key.pem" # required
+  ## Log Cache requires TLS options to function
+  # tls_ca = "/etc/log-cache/ca.pem"
+  # tls_cert = "/etc/log-cache/cert.pem"
+  # tls_key = "/etc/log-cache/key.pem"
+  ## Use TLS but skip chain & host verification
+  # insecure_skip_verify = false
 
   ## Metric tag to map to CF source_id
   source_id_tag = "host" # required
@@ -50,18 +48,17 @@ type logCacheClient interface {
 type CloudFoundry struct {
 	LogCacheClient logCacheClient
 	Address        string `toml:"address"`
-	CAPath         string `toml:"ca_path"`
-	CertPath       string `toml:"cert_path"`
-	KeyPath        string `toml:"key_path"`
-	SourceIDTag    string `toml:"source_id_tag"`
-	InstanceIDTag  string `toml:"instance_id_tag"`
-	SourceID       string `toml:"source_id"`
-	InstanceID     string `toml:"instance_id"`
-	connection     *grpc.ClientConn
+
+	tls.ClientConfig
+	SourceIDTag   string `toml:"source_id_tag"`
+	InstanceIDTag string `toml:"instance_id_tag"`
+	SourceID      string `toml:"source_id"`
+	InstanceID    string `toml:"instance_id"`
+	connection    *grpc.ClientConn
 }
 
 func (c *CloudFoundry) Connect() error {
-	cfg, err := newMutualTLSConfig(c.CAPath, c.CertPath, c.KeyPath, "log-cache")
+	cfg, err := c.TLSConfig()
 	if err != nil {
 		return fmt.Errorf("Unable to create TLS configuration: %v\n", err)
 	}
@@ -113,44 +110,6 @@ func init() {
 	outputs.Add("cloudfoundry", func() telegraf.Output {
 		return &CloudFoundry{}
 	})
-}
-
-func newMutualTLSConfig(caPath, certPath, keyPath, cn string) (*tls.Config, error) {
-	cert, err := tls.LoadX509KeyPair(certPath, keyPath)
-	if err != nil {
-		return nil, err
-	}
-
-	tlsConfig := newBaseTLSConfig()
-	tlsConfig.ServerName = cn
-	tlsConfig.Certificates = []tls.Certificate{cert}
-
-	caCertBytes, err := ioutil.ReadFile(caPath)
-	if err != nil {
-		return nil, err
-	}
-
-	caCertPool := x509.NewCertPool()
-	if ok := caCertPool.AppendCertsFromPEM(caCertBytes); !ok {
-		return nil, fmt.Errorf("cannot parse ca cert")
-	}
-
-	tlsConfig.RootCAs = caCertPool
-
-	return tlsConfig, nil
-}
-
-func newBaseTLSConfig() *tls.Config {
-	return &tls.Config{
-		InsecureSkipVerify: false,
-		MinVersion:         tls.VersionTLS12,
-		CipherSuites:       supportedCipherSuites,
-	}
-}
-
-var supportedCipherSuites = []uint16{
-	tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-	tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 }
 
 func (c *CloudFoundry) getGaugeEnvelope(m telegraf.Metric) *loggregator_v2.Envelope {
