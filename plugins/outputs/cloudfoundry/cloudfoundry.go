@@ -138,7 +138,6 @@ func (c *CloudFoundry) getCounterEnvelope(m telegraf.Metric) *loggregator_v2.Env
 		InstanceId: c.getInstanceID(m),
 		Tags:       m.Tags(),
 		Message: &loggregator_v2.Envelope_Counter{
-
 			Counter: &loggregator_v2.Counter{
 				Name:  m.Name(),
 				Total: value,
