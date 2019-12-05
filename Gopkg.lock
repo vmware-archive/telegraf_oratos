@@ -39,10 +39,7 @@
   branch = "master"
   digest = "1:8ab9d0eaf4289680d44040c23b5b5e92f7ec8ecec890a95679e2d93d05d21576"
   name = "code.cloudfoundry.org/log-cache"
-  packages = [
-    "internal/tls",
-    "pkg/rpc/logcache_v1",
-  ]
+  packages = ["pkg/rpc/logcache_v1"]
   pruneopts = ""
   revision = "526a0fd20d0308de00e5a3018047219428e31653"
 
@@ -1769,7 +1766,6 @@
     "cloud.google.com/go/monitoring/apiv3",
     "cloud.google.com/go/pubsub",
     "code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2",
-    "code.cloudfoundry.org/log-cache/internal/tls",
     "code.cloudfoundry.org/log-cache/pkg/rpc/logcache_v1",
     "collectd.org/api",
     "collectd.org/network",

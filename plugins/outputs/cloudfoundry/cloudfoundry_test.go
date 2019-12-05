@@ -16,7 +16,7 @@ import (
 )
 
 func TestCloudFoundryOutput(t *testing.T) {
-	t.Run("receives gauges", func(t *testing.T) {
+	t.Run("receives all fields as gauges", func(t *testing.T) {
 		lc := newSpyLogCacheClient()
 		cfOutput := &CloudFoundry{
 			LogCacheClient: lc,
@@ -25,13 +25,14 @@ func TestCloudFoundryOutput(t *testing.T) {
 		}
 
 		m, _ := metric.New(
-			"test-metric",
+			"test_metric",
 			map[string]string{
 				"source":   "test-source",
 				"instance": "test-instance",
 			},
 			map[string]interface{}{
 				"gauge": 42.0,
+				"test_field": 15,
 			},
 			time.Now(),
 		)
@@ -47,9 +48,13 @@ func TestCloudFoundryOutput(t *testing.T) {
 			Message: &loggregator_v2.Envelope_Gauge{
 				Gauge: &loggregator_v2.Gauge{
 					Metrics: map[string]*loggregator_v2.GaugeValue{
-						"test-metric": {
+						"test_metric_gauge": {
 							Unit:  "",
 							Value: 42.0,
+						},
+						"test_metric_test_field": {
+							Unit:  "",
+							Value: 15.0,
 						},
 					},
 				},
@@ -201,7 +206,7 @@ func TestCloudFoundryOutput(t *testing.T) {
 			Message: &loggregator_v2.Envelope_Gauge{
 				Gauge: &loggregator_v2.Gauge{
 					Metrics: map[string]*loggregator_v2.GaugeValue{
-						"test-metric": {
+						"test-metric_gauge": {
 							Unit:  "",
 							Value: 42.0,
 						},
@@ -242,7 +247,7 @@ func TestCloudFoundryOutput(t *testing.T) {
 			Message: &loggregator_v2.Envelope_Gauge{
 				Gauge: &loggregator_v2.Gauge{
 					Metrics: map[string]*loggregator_v2.GaugeValue{
-						"test-metric": {
+						"test-metric_gauge": {
 							Unit:  "",
 							Value: 42.0,
 						},

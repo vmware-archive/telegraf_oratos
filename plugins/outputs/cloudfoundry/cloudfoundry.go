@@ -3,6 +3,7 @@ package cloudfoundry
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -94,10 +95,10 @@ func (c *CloudFoundry) Write(metrics []telegraf.Metric) error {
 	b := make([]*loggregator_v2.Envelope, 0)
 	for _, m := range metrics {
 		switch {
-		case m.HasField("gauge"):
-			b = append(b, c.getGaugeEnvelope(m))
 		case m.HasField("counter"):
 			b = append(b, c.getCounterEnvelope(m))
+		default:
+			b = append(b, c.getFieldEnvelope(m))
 		}
 	}
 
@@ -141,6 +142,32 @@ func (c *CloudFoundry) getCounterEnvelope(m telegraf.Metric) *loggregator_v2.Env
 			Counter: &loggregator_v2.Counter{
 				Name:  m.Name(),
 				Total: value,
+			},
+		},
+	}
+}
+
+func (c *CloudFoundry) getFieldEnvelope(m telegraf.Metric) *loggregator_v2.Envelope {
+	metricList := make(map[string]*loggregator_v2.GaugeValue, 0)
+	for name, value := range m.Fields() {
+		n := fmt.Sprintf("%s_%s", m.Name(), name)
+		s := fmt.Sprintf("%v", value)
+		v, _ := strconv.ParseFloat(s, 64)
+
+		metricList[n] = &loggregator_v2.GaugeValue{
+			Unit: "",
+			Value: v,
+		}
+	}
+
+	return &loggregator_v2.Envelope{
+		Timestamp:  m.Time().UnixNano(),
+		SourceId:   c.getSourceID(m),
+		InstanceId: c.getInstanceID(m),
+		Tags:       m.Tags(),
+		Message: &loggregator_v2.Envelope_Gauge{
+			Gauge: &loggregator_v2.Gauge{
+				Metrics: metricList,
 			},
 		},
 	}
